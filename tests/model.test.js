@@ -198,6 +198,26 @@ describe('Model methods', () => {
     comment.save()
   })
 
+    test('save() method makes a PUT request when object is found by Id', async() => {
+    let comment
+
+    axiosMock.onGet('http://localhost/posts/1/comments/1').reply(200, commentsResponse)
+    axiosMock.onGet('http://localhost/posts/1').reply(200, postResponse)
+
+    axiosMock.onPut().reply((config) => {
+      expect(config.method).toEqual('put')
+      expect(config.data).toEqual(JSON.stringify(comment))
+      expect(config.url).toEqual('http://localhost/posts/1/comments/1')
+
+      return [200, {}]
+    })
+
+    const post = await Post.find(1)
+    comment = await post.comments().find(1)
+    comment.text = 'Owh!'
+    comment.save()
+    })
+
   test('save() method makes a PUT request when ID of object exists (nested object, customPK)', async () => {
     let comment, post
 

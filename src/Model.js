@@ -250,19 +250,15 @@ export default class Model extends StaticModel {
     return this.request({
       url,
       method: 'GET'
-    }).then(response => new this.constructor(response.data))
+    }).then(response => this.makeCollection(response)[0])
   }
-
-  get() {
-    let base = this._fromResource || `${this.baseURL()}/${this.resource()}`
-    base = this._customResource ? `${this.baseURL()}/${this._customResource}` : base
-    let url = `${base}${this._builder.query()}`
-
-    return this.request({
-      url,
-      method: 'GET'
-    }).then(response => {
+    
+    makeCollection( response ) {
       let collection = response.data.data || response.data
+        if( !Array.isArray(collection) ) {
+            collection = collection[this.resource()] ?
+                collection[this.resource()]: [collection]
+        }
       collection = Array.isArray(collection) ? collection : [collection]
 
       collection = collection.map(c => {
@@ -279,7 +275,18 @@ export default class Model extends StaticModel {
       }
 
       return response.data
-    })
+    }
+    
+
+  get( url ) {
+    let base = this._fromResource || `${this.baseURL()}/${this.resource()}`
+    base = this._customResource ? `${this.baseURL()}/${this._customResource}` : base
+    url = `${base}${this._builder.query()}`
+
+    return this.request({
+      url,
+      method: 'GET'
+    }).then(response => this.makeCollection( response ))
   }
 
   $get() {
