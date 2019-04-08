@@ -5,7 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "babel src -d build",
-    "prepare": "npm build && npm cc",
+    "prepare": "npm run build && npm run cc",
     "test": "jest --watch --coverage",
     "cc": "jest --coverage"
   },
